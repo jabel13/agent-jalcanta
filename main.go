@@ -7,31 +7,38 @@ import (
 )
 
 type Outcome struct {
-	Name  string `json:"name"`
-	Price int    `json:"price"`
+    Name  string `json:"name"`
+    Price int    `json:"price"`
 }
 
 type Market struct {
-	Key      string    `json:"key"`
-	Outcomes []Outcome `json:"outcomes"`
+    Key      string    `json:"key"`
+    Outcomes []Outcome `json:"outcomes"`
 }
 
 type Bookmaker struct {
-	Title   string  `json:"title"`
-	Markets []Market `json:"markets"`
+    Key     string   `json:"key"`
+    Title   string   `json:"title"`
+    Markets []Market `json:"markets"`
+}
+
+type Game struct {
+    ID            string      `json:"id"`
+    Bookmakers    []Bookmaker `json:"bookmakers"`
 }
 
 func main() {
 
 	apiKey := "e74a90247906a097ffa99c9a4a611344"
-	apiUrl := "https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey=" + apiKey
+	apiUrl := "https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey=" + apiKey + "&regions=us" + "&markets=h2h" + "&oddsFormat=american"
 
-	response, err := http.Get(apiUrl)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	defer response.Body.Close()
+    // Make the HTTP GET request with the updated URL
+    response, err := http.Get(apiUrl)
+    if err != nil {
+        fmt.Println("Error:", err)
+        return
+    }
+    defer response.Body.Close()
 
 	// Check if the response status code is not 200 OK
 	if response.StatusCode != http.StatusOK {
@@ -39,24 +46,36 @@ func main() {
 		return
 	}
 
+	// Read the response body as a string
+// body, err := ioutil.ReadAll(response.Body)
+// if err != nil {
+//     fmt.Println("Error reading response body:", err)
+//     return
+// }
+
+// Print the raw JSON response
+// fmt.Println("Raw JSON Response:", string(body))
+
 	// Decode the JSON response into a slice of Bookmaker structs
-	var bookmakers []Bookmaker
-	err = json.NewDecoder(response.Body).Decode(&bookmakers)
+	var games []Game
+	err = json.NewDecoder(response.Body).Decode(&games)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
 		return
 	}
 
-	// Loop through the games and print the bookmaker title, markets key, and outcomes
-	for _, bookmaker := range bookmakers {
-		fmt.Println("Bookmaker Title:", bookmaker.Title)
+	for _, game := range games {
+		fmt.Println("Game ID:", game.ID)
+		// Loop through the games and print the bookmaker title, markets key, and outcomes
+		for _, bookmaker := range game.Bookmakers {
+			fmt.Println("Bookmaker Title:", bookmaker.Title)
 
-		for _, market := range bookmaker.Markets {
-			fmt.Println("Market Key:", market.Key)
+			for _, market := range bookmaker.Markets {
 
-			fmt.Println("Outcomes:")
-			for _, outcome := range market.Outcomes {
-				fmt.Printf("  Name: %s, Price: %d\n", outcome.Name, outcome.Price)
+				fmt.Println("Outcomes:")
+				for _, outcome := range market.Outcomes {
+					fmt.Printf("  Name: %s, Price: %d\n", outcome.Name, outcome.Price)
+				}
 			}
 		}
 		fmt.Println() // Add an empty line between each game
