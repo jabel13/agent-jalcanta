@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	loggly "github.com/jamespearly/loggly"
 )
 
 type Outcome struct {
@@ -28,6 +29,11 @@ type Game struct {
 }
 
 func main() {
+
+	var tag string
+	tag = "My-Go-Demo"
+
+	client := loggly.New(tag)
 
 	apiKey := "e74a90247906a097ffa99c9a4a611344"
 	apiUrl := "https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey=" + apiKey + "&regions=us" + "&markets=h2h" + "&oddsFormat=american"
@@ -64,20 +70,31 @@ func main() {
 		return
 	}
 
-	for _, game := range games {
-		fmt.Println("Game ID:", game.ID)
-		// Loop through the games and print the bookmaker title, markets key, and outcomes
-		for _, bookmaker := range game.Bookmakers {
-			fmt.Println("Bookmaker Title:", bookmaker.Title)
+	// Valid EchoSend (message echoed to console and no error returned)
+	err := client.EchoSend("info", "Good morning!")
+	fmt.Println("err:", err)
 
-			for _, market := range bookmaker.Markets {
+	// Valid Send (no error returned)
+	err = client.Send("error", "Good morning! No echo.")
+	fmt.Println("err:", err)
 
-				fmt.Println("Outcomes:")
-				for _, outcome := range market.Outcomes {
-					fmt.Printf("  Name: %s, Price: %d\n", outcome.Name, outcome.Price)
-				}
-			}
-		}
-		fmt.Println() // Add an empty line between each game
-	}
+	fmt.Println(response.ContentLength)
+
+	// for _, game := range games {
+	// 	fmt.Println("Game ID:", game.ID)
+	// 	// Loop through the games and print the bookmaker title, markets key, and outcomes
+	// 	for _, bookmaker := range game.Bookmakers {
+	// 		fmt.Println()
+	// 		fmt.Println("Bookmaker Title:", bookmaker.Title)
+
+	// 		for _, market := range bookmaker.Markets {
+
+	// 			fmt.Println("Outcomes:")
+	// 			for _, outcome := range market.Outcomes {
+	// 				fmt.Printf("  Name: %s, Price: %d\n", outcome.Name, outcome.Price)
+	// 			}
+	// 		}
+	// 	}
+	// 	fmt.Println() // Add an empty line between each game
+	// }
 }
