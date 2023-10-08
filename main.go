@@ -31,7 +31,7 @@ type Game struct {
 func main() {
 
 	var tag string
-	tag = "My-Go-Demo"
+	tag = "Sports-Betting-Server"
 
 	client := loggly.New(tag)
 
@@ -71,11 +71,11 @@ func main() {
 	}
 
 	// Valid EchoSend (message echoed to console and no error returned)
-	err := client.EchoSend("info", "Good morning!")
+	err = client.EchoSend("debug", "This is a debug message")
 	fmt.Println("err:", err)
 
 	// Valid Send (no error returned)
-	err = client.Send("error", "Good morning! No echo.")
+	err = client.Send("info", "Message received")
 	fmt.Println("err:", err)
 
 	fmt.Println(response.ContentLength)
