@@ -70,6 +70,24 @@ func main() {
 		return
 	}
 
+	for _, game := range games {
+		fmt.Println("Game ID:", game.ID)
+		// Loop through the games and print the bookmaker title, markets key, and outcomes
+		for _, bookmaker := range game.Bookmakers {
+			fmt.Println()
+			fmt.Println("Bookmaker Title:", bookmaker.Title)
+
+			for _, market := range bookmaker.Markets {
+
+				fmt.Println("Outcomes:")
+				for _, outcome := range market.Outcomes {
+					fmt.Printf("  Name: %s, Price: %d\n", outcome.Name, outcome.Price)
+				}
+			}
+		}
+		fmt.Println() // Add an empty line between each game
+	}
+
 	// Valid EchoSend (message echoed to console and no error returned)
 	err = client.EchoSend("debug", "This is a debug message")
 	fmt.Println("err:", err)
@@ -79,22 +97,4 @@ func main() {
 	fmt.Println("err:", err)
 
 	fmt.Println(response.ContentLength)
-
-	// for _, game := range games {
-	// 	fmt.Println("Game ID:", game.ID)
-	// 	// Loop through the games and print the bookmaker title, markets key, and outcomes
-	// 	for _, bookmaker := range game.Bookmakers {
-	// 		fmt.Println()
-	// 		fmt.Println("Bookmaker Title:", bookmaker.Title)
-
-	// 		for _, market := range bookmaker.Markets {
-
-	// 			fmt.Println("Outcomes:")
-	// 			for _, outcome := range market.Outcomes {
-	// 				fmt.Printf("  Name: %s, Price: %d\n", outcome.Name, outcome.Price)
-	// 			}
-	// 		}
-	// 	}
-	// 	fmt.Println() // Add an empty line between each game
-	// }
 }
