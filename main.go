@@ -62,7 +62,7 @@ func main() {
 
 	// Calculate the size of the JSON content
 	contentSize := len(body)
-	fmt.Printf("Size of JSON content: %d bytes\n", contentSize)
+	
 
 	// Decode the JSON response into a slice of Bookmaker structs
 	var games []Game
@@ -97,4 +97,6 @@ func main() {
 	// Valid Send (no error returned)
 	err = client.Send("info", "Message received")
 	fmt.Println("err:", err)
+
+	fmt.Printf("Size of JSON content: %d bytes\n", contentSize)
 }
