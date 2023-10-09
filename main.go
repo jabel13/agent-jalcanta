@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"io/ioutil"
 	loggly "github.com/jamespearly/loggly"
 )
 
@@ -52,19 +53,20 @@ func main() {
 		return
 	}
 
-	// Read the response body as a string
-// body, err := ioutil.ReadAll(response.Body)
-// if err != nil {
-//     fmt.Println("Error reading response body:", err)
-//     return
-// }
+	// Read the response body into a byte slice
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return
+	}
 
-// Print the raw JSON response
-// fmt.Println("Raw JSON Response:", string(body))
+	// Calculate the size of the JSON content
+	contentSize := len(body)
+	fmt.Printf("Size of JSON content: %d bytes\n", contentSize)
 
 	// Decode the JSON response into a slice of Bookmaker structs
 	var games []Game
-	err = json.NewDecoder(response.Body).Decode(&games)
+	err = json.Unmarshal(body, &games)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
 		return
@@ -95,6 +97,4 @@ func main() {
 	// Valid Send (no error returned)
 	err = client.Send("info", "Message received")
 	fmt.Println("err:", err)
-
-	fmt.Println(response.ContentLength)
 }
