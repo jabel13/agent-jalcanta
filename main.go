@@ -32,7 +32,7 @@ type Game struct {
 func main() {
 
 	var tag string
-	tag = "Sports-Betting-Server"
+	tag = "Sports-Betting-Agent"
 
 	client := loggly.New(tag)
 
