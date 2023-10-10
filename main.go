@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"io/ioutil"
+	"time"
 	loggly "github.com/jamespearly/loggly"
 )
 
@@ -29,7 +30,7 @@ type Game struct {
     Bookmakers    []Bookmaker `json:"bookmakers"`
 }
 
-func main() {
+func proccessMLBOdds() {
 
 	var tag string
 	tag = "Sports-Betting-Agent"
@@ -99,4 +100,16 @@ func main() {
 	fmt.Println("err:", err)
 
 	fmt.Printf("Size of JSON content: %d bytes\n", contentSize)
+
+}
+
+func main() {
+
+	for {
+		proccessMLBOdds()
+
+		// Sleep for 120 minutes before the next request
+		time.Sleep(120 * time.Minute)
+	}
+
 }
