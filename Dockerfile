@@ -10,8 +10,12 @@ COPY . .
 # Download dependencies
 RUN go mod download
 
-# Build the Go app
-RUN go build -o main .
+# Build a statically-linked Go binary for Linux
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
+
+// Print working directory
+RUN pwd && find .
+
 
 CMD ["./main"]
 

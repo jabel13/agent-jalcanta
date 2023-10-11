@@ -123,29 +123,23 @@ func proccessMLBOdds() {
 func main() {
 
 	// Define a new integer flag polling interval with default value 120
-	// The user can specify the polling interval with -p=<minutes>
-	p := flag.Int("p", 120, "Polling interval in minutes")
+	// The user can specify the polling interval with -poll=<minutes>
+	poll := flag.Int("poll", 0, "Polling interval in minutes")
 
-	// String flag for loggly token
-	e := flag.String("e", "", "Enter Loggly Token")
-
-	// Parse the flags
+	// Parse the flag
 	flag.Parse()
 
-	// Set the environment variable named with the value of 'e'
-	if *e != "" {
-		err := os.Setenv("LOGGLY_TOKEN", *e)
-		if err != nil {
-			fmt.Println("Failed to set environment variable:", err)
-			return
-		}
+    // Check if 'arg' is provided
+	if *poll == 0 {
+		fmt.Println("Error: The '-poll' flag is required.")
+		os.Exit(1) // Exit with a non-zero status code to indicate an error
 	}
 
 	for {
 		proccessMLBOdds()
 
 		// Sleep for the specified duration
-		time.Sleep(time.Duration(*p) * time.Minute)
+		time.Sleep(time.Duration(*poll) * time.Minute)
 	}
 
 }
