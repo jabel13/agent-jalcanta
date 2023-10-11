@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"time"
 	loggly "github.com/jamespearly/loggly"
+	"flag"
+	"os"
 )
 
 type Outcome struct {
@@ -120,14 +122,30 @@ func proccessMLBOdds() {
 
 func main() {
 
+	// Define a new integer flag polling interval with default value 120
+	// The user can specify the polling interval with -p=<minutes>
+	p := flag.Int("p", 120, "Polling interval in minutes")
+
+	// String flag for loggly token
+	e := flag.String("e", "", "Enter Loggly Token")
+
+	// Parse the flags
+	flag.Parse()
+
+	// Set the environment variable named with the value of 'e'
+	if *e != "" {
+		err := os.Setenv("LOGGLY_TOKEN", *e)
+		if err != nil {
+			fmt.Println("Failed to set environment variable:", err)
+			return
+		}
+	}
+
 	for {
 		proccessMLBOdds()
 
-		// Sleep for 120 minutes before the next request
-		// time.Sleep(120 * time.Minute)
-
-		// Testing purposes
-		time.Sleep(2 * time.Minute)
+		// Sleep for the specified duration
+		time.Sleep(time.Duration(*p) * time.Minute)
 	}
 
 }
