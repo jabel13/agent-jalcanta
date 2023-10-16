@@ -107,16 +107,15 @@ func proccessMLBOdds() {
 
 	printGameDetails(games)
 
-	// Valid EchoSend (message echoed to console and no error returned)
-	err = client.EchoSend("debug", "This is a debug message")
-	fmt.Println("err:", err)
+    // Use Sprintf to format string 
+    formattedMsg := fmt.Sprintf("Size of JSON content: %d bytes", contentSize)
+    err = client.EchoSend("info", formattedMsg)
+    fmt.Println("err:", err)
 
-	// Valid Send (no error returned)
-	err = client.Send("info", "Message received")
-	fmt.Println("err:", err)
 
-	fmt.Printf("Size of JSON content: %d bytes\n", contentSize)
-
+    // Valid EchoSend (message echoed to console and no error returned)
+	// err = client.Send("debug", "This is a debug message")
+	// fmt.Println("err:", err)
 
 }
 
