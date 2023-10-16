@@ -13,9 +13,9 @@ RUN go mod download
 # Build a statically-linked Go binary for Linux
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
 
-// Print working directory
+# Print working directory
 RUN pwd && find .
 
 
-CMD ["./main"]
+CMD ["./main", "-poll=120"]
 
