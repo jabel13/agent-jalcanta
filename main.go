@@ -87,7 +87,7 @@ func proccessMLBOdds() {
 	client := loggly.New(tag)
 
 	apiKey := "e74a90247906a097ffa99c9a4a611344"
-	apiUrl := "https://api.the-odds-api.com/v4/sports/baseball_mlb/odds/?apiKey=" + apiKey + "&regions=us" + "&markets=h2h" + "&oddsFormat=american"
+	apiUrl := "https://api.the-odds-api.com/v4/sports/basketball_nba/odds/?apiKey=" + apiKey + "&regions=us" + "&markets=h2h" + "&oddsFormat=american"
 
     // Make the HTTP GET request with the updated URL
     response, err := getAPIResponse(apiUrl)
@@ -111,11 +111,6 @@ func proccessMLBOdds() {
     formattedMsg := fmt.Sprintf("Size of JSON content: %d bytes", contentSize)
     err = client.EchoSend("info", formattedMsg)
     fmt.Println("err:", err)
-
-
-    // Valid EchoSend (message echoed to console and no error returned)
-	// err = client.Send("debug", "This is a debug message")
-	// fmt.Println("err:", err)
 
 }
 
