@@ -83,7 +83,7 @@ func printGameDetails(games []Game) {
 }
 
 
-func proccessMLBOdds() {
+func proccessNbaOdds() {
 
 	var tag string
 	tag = "Sports-Betting-Agent"
@@ -134,7 +134,7 @@ func main() {
 	}
 
 	for {
-		proccessMLBOdds()
+		proccessNbaOdds()
 
 		// Sleep for the specified duration
 		time.Sleep(time.Duration(*poll) * time.Minute)
