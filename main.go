@@ -7,6 +7,7 @@ import (
     "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"encoding/json"
 	"fmt"
+    "log"
 	"net/http"
 	"io/ioutil"
 	"time"
@@ -15,26 +16,32 @@ import (
 	"os"
 )
 
-type Outcome struct {
-    Name  string `json:"name"`
-    Price int    `json:"price"`
-}
-
-type Market struct {
-    Key      string    `json:"key"`
-    Outcomes []Outcome `json:"outcomes"`
+type Game struct {
+	ID         string       `json:"id"`
+	Bookmakers []Bookmaker  `json:"bookmakers"`
 }
 
 type Bookmaker struct {
-    Key     string   `json:"key"`
-    Title   string   `json:"title"`
-    Markets []Market `json:"markets"`
+	Key     string    `json:"key"`
+    Title   string    `json:"title"`
+	Markets []Market  `json:"markets"`
 }
 
-type Game struct {
-    ID            string      `json:"id"`
-    Bookmakers    []Bookmaker `json:"bookmakers"`
+type Market struct {
+	Outcomes []Outcome `json:"outcomes"`
 }
+
+type Outcome struct {
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+}
+
+type DynamoItem struct {
+	GameID       string    `json:"id"`
+	BookmakerKey string    `json:"key"`
+	Outcomes     []Outcome `json:"outcomes"`
+}
+
 
 func getAPIResponse(apiUrl string) (*http.Response, error) {
     response, err := http.Get(apiUrl)
@@ -54,16 +61,23 @@ func readAndParseResponse(response *http.Response) ([]Game, int, error) {
         return nil, 0, err
     }
     
-	contentSize := len(body)
+    contentSize := len(body)
 
-    var games []Game
-    err = json.Unmarshal(body, &games)
-
+    var allGames []Game
+    err = json.Unmarshal(body, &allGames)
     if err != nil {
         return nil, 0, err
     }
-    return games, contentSize, nil
+
+    // Limit to a maximum of 7 games
+    maxGames := 7
+    if len(allGames) > maxGames {
+        allGames = allGames[:maxGames]
+    }
+
+    return allGames, contentSize, nil
 }
+
 
 func printGameDetails(games []Game) {
     for _, game := range games {
@@ -82,6 +96,57 @@ func printGameDetails(games []Game) {
     }
 }
 
+func writeToDynamoDB(games []Game) error {
+// Initialize a session that the SDK will use to load
+// credentials from the shared credentials file ~/.aws/credentials
+// and region from the shared configuration file ~/.aws/config.
+    sess, err := session.NewSession(&aws.Config{
+        Region: aws.String(os.Getenv("AWS_DEFAULT_REGION")),
+    })
+    if err != nil {
+        log.Fatalf("Failed to create AWS session: %s", err)
+    }
+
+    
+    // Create DynamoDB client
+    svc := dynamodb.New(sess)
+
+
+    // Define the name of your table
+    tableName := "nba-odds-jalcanta"
+
+	// Iterate through each game and its bookmakers to create Dynamo items
+	for _, game := range games {
+		for _, bookmaker := range game.Bookmakers {
+			for _, market := range bookmaker.Markets {
+				dynamoItem := DynamoItem{
+					GameID:       game.ID,
+					BookmakerKey: bookmaker.Key,
+					Outcomes:     market.Outcomes,
+				}
+
+				item, err := dynamodbattribute.MarshalMap(dynamoItem)
+				if err != nil {
+					log.Fatalf("Got error marshalling map: %s", err)
+				}
+
+				input := &dynamodb.PutItemInput{
+					TableName: &tableName,
+					Item:      item,
+				}
+
+				_, err = svc.PutItem(input)
+				if err != nil {
+					log.Fatalf("Got error calling PutItem: %s", err)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+
 
 func proccessNbaOdds() {
 
@@ -90,7 +155,12 @@ func proccessNbaOdds() {
 
 	client := loggly.New(tag)
 
-	apiKey := "e74a90247906a097ffa99c9a4a611344"
+	// Fetch the API key from environment variables
+	apiKey := os.Getenv("API_KEY")
+	if apiKey == "" {
+		fmt.Println("Error: API_KEY environment variable not set")
+		return
+	}
 	apiUrl := "https://api.the-odds-api.com/v4/sports/basketball_nba/odds/?apiKey=" + apiKey + "&regions=us" + "&markets=h2h" + "&oddsFormat=american"
 
     // Make the HTTP GET request with the updated URL
@@ -110,6 +180,13 @@ func proccessNbaOdds() {
     }
 
 	printGameDetails(games)
+
+    // Write data to DynamoDB
+    err = writeToDynamoDB(games)
+    if err != nil {
+        fmt.Println("Error writing to DynamoDB:", err)
+        return
+    }
 
     // Use Sprintf to format string 
     formattedMsg := fmt.Sprintf("Size of JSON content: %d bytes", contentSize)
