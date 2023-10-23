@@ -137,11 +137,13 @@ func writeToDynamoDB(games []Game) error {
 					Outcomes:     market.Outcomes,
 				}
 
+                // Marshal the DynamoItem into a map so it can be saved to DynamoDB
 				item, err := dynamodbattribute.MarshalMap(dynamoItem)
 				if err != nil {
 					log.Fatalf("Got error marshalling map: %s", err)
 				}
-
+                
+                // Create the PutItem input structure based on the marshaled item
 				input := &dynamodb.PutItemInput{
 					TableName: &tableName,
 					Item:      item,
