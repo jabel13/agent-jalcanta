@@ -108,9 +108,10 @@ func printGameDetails(games []Game) {
 }
 
 func writeToDynamoDB(games []Game) error {
-// Initialize a session that the SDK will use to load
-// credentials from the shared credentials file ~/.aws/credentials
-// and region from the shared configuration file ~/.aws/config.
+// Must specify AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_DEFAULT_REGION 
+// as environmnet variables 
+// Create a new AWS session. If the session creation fails,
+// the program will log the error and terminate.
     sess, err := session.NewSession(&aws.Config{
         Region: aws.String(os.Getenv("AWS_DEFAULT_REGION")),
     })
@@ -123,7 +124,7 @@ func writeToDynamoDB(games []Game) error {
     svc := dynamodb.New(sess)
 
 
-    // Define the name of your table
+    // Create table
     tableName := "nba-odds-jalcanta"
 
 	// Iterate through each game and its bookmakers to create Dynamo items
@@ -193,7 +194,6 @@ func proccessNbaOdds() {
         fmt.Println("Error writing to DynamoDB:", err)
         return
     }
-
 
 }
 
