@@ -55,10 +55,16 @@ func getAPIResponse(apiUrl string) (*http.Response, error) {
     return response, nil
 }
 
-func readAndParseResponse(response *http.Response) ([]Game, int, error) {
+func readAndParseResponse(response *http.Response) ([]Game, error) {
+
+    var tag string
+	tag = "Sports-Betting-Agent"
+
+	client := loggly.New(tag)
+
     body, err := ioutil.ReadAll(response.Body)
     if err != nil {
-        return nil, 0, err
+        return nil, err
     }
     
     contentSize := len(body)
@@ -66,7 +72,7 @@ func readAndParseResponse(response *http.Response) ([]Game, int, error) {
     var allGames []Game
     err = json.Unmarshal(body, &allGames)
     if err != nil {
-        return nil, 0, err
+        return nil, err
     }
 
     // Limit to a maximum of 7 games
@@ -75,7 +81,12 @@ func readAndParseResponse(response *http.Response) ([]Game, int, error) {
         allGames = allGames[:maxGames]
     }
 
-    return allGames, contentSize, nil
+    // Use Sprintf to format string 
+    formattedMsg := fmt.Sprintf("Size of JSON content: %d bytes", contentSize)
+    err = client.EchoSend("info", formattedMsg)
+    fmt.Println("err:", err)
+
+    return allGames, nil
 }
 
 
@@ -150,11 +161,6 @@ func writeToDynamoDB(games []Game) error {
 
 func proccessNbaOdds() {
 
-	var tag string
-	tag = "Sports-Betting-Agent"
-
-	client := loggly.New(tag)
-
 	// Fetch the API key from environment variables
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
@@ -172,7 +178,7 @@ func proccessNbaOdds() {
     defer response.Body.Close()
 
 
-	games, contentSize, err := readAndParseResponse(response)
+	games, err := readAndParseResponse(response)
 
     if err != nil {
         fmt.Println("Error:", err)
@@ -188,10 +194,6 @@ func proccessNbaOdds() {
         return
     }
 
-    // Use Sprintf to format string 
-    formattedMsg := fmt.Sprintf("Size of JSON content: %d bytes", contentSize)
-    err = client.EchoSend("info", formattedMsg)
-    fmt.Println("err:", err)
 
 }
 
