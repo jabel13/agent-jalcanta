@@ -42,7 +42,8 @@ type DynamoItem struct {
 	Outcomes     []Outcome `json:"outcomes"`
 }
 
-
+// Sends an HTTP GET request to the specified apiUrl
+// and returns a pointer to the HTTP response and any error encountered
 func getAPIResponse(apiUrl string) (*http.Response, error) {
     response, err := http.Get(apiUrl)
     if err != nil {
@@ -57,11 +58,13 @@ func getAPIResponse(apiUrl string) (*http.Response, error) {
 
 func readAndParseResponse(response *http.Response) ([]Game, error) {
 
+    // Initialize loggly tag and client
     var tag string
 	tag = "Sports-Betting-Agent"
 
 	client := loggly.New(tag)
 
+    // reads the entire content of the HTTP response body into 'body' variable
     body, err := ioutil.ReadAll(response.Body)
     if err != nil {
         return nil, err
@@ -69,13 +72,16 @@ func readAndParseResponse(response *http.Response) ([]Game, error) {
     
     contentSize := len(body)
 
+    // Attempt to parse the 'body' (response in JSON) into a slice of Game objects
     var allGames []Game
+    // &allGames is a pointer to the 'allGames' variable 
+    // this is where the parsed data will be stored after decoding from JSON
     err = json.Unmarshal(body, &allGames)
     if err != nil {
         return nil, err
     }
 
-    // Limit to a maximum of 7 games
+    // Limit the number of Game objects to a maximum of 7 games
     maxGames := 7
     if len(allGames) > maxGames {
         allGames = allGames[:maxGames]
@@ -89,7 +95,7 @@ func readAndParseResponse(response *http.Response) ([]Game, error) {
     return allGames, nil
 }
 
-
+// Takes a slice of Game objects - iterate through each game and print details
 func printGameDetails(games []Game) {
     for _, game := range games {
         fmt.Println("Game ID:", game.ID)
@@ -201,7 +207,7 @@ func proccessNbaOdds() {
 
 func main() {
 
-	// Define a new integer flag polling interval with default value 120
+	// Define a new integer flag named 'poll' with default value of 0
 	// The user can specify the polling interval with -poll=<minutes>
 	poll := flag.Int("poll", 0, "Polling interval in minutes")
 
