@@ -1,7 +1,7 @@
 # Dockerized NBA Betting Odds Processing Application in Go
 
 ## Description
-This application is developed in Go and is designed to fetch, parse, and store NBA betting odds data from[The-Odds-API](https://the-odds-api.com/). It integrates with AWS DynamoDB to store the data and is designed to periodically poll the API, ensuring that the data remains up-to-date. The application is Dockerized for straightforward deployment and scalability.
+This application is developed in Go and is designed to fetch, parse, and store NBA betting odds data from [The-Odds-API](https://the-odds-api.com/). It integrates with AWS DynamoDB to store the data and is designed to periodically poll the API, ensuring that the data remains up-to-date. The application is Dockerized for straightforward deployment and scalability.
 
 ## Features
 - Fetches NBA odds data from The-Odds-API using an API token.
