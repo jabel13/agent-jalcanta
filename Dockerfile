@@ -1,20 +1,31 @@
 # Start the Go app build
 FROM golang:latest AS build
 
-# Set the Current Working Directory inside the container
+# Copy source
 WORKDIR /app
-
-# Copy everything from the current directory to the Working Directory inside the container
 COPY . .
 
-# Download dependencies
-RUN go mod download
+# Get required modules
+RUN go mod tidy
 
 # Build a statically-linked Go binary for Linux
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main .
 
-# Print working directory
-RUN pwd && find .
+# New build phase -- create binary-only image
+FROM alpine:latest
+
+# Add support for HTTPS
+RUN apk update && \
+    apk upgrade && \
+    apk add ca-certificates
+
+WORKDIR /root/
+
+# Copy files from previous build container
+COPY --from=build /app/main ./main
+
+# Check results
+RUN env && pwd && find .
 
 
 CMD ["./main", "-poll=120"]
