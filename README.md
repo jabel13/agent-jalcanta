@@ -15,7 +15,7 @@ This application is developed in Go and is designed to fetch, parse, and store N
 - Go programming environment (version 1.x or later)
 - Docker installed on your machine
 - AWS account with DynamoDB access
-- An Odds API key (emailed to you when you sign up for a plan)
+- The Odds API key (emailed to you when you sign up for a plan)
 - Loggly account for logging
 
 ## Setup
