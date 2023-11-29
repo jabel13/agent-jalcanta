@@ -207,18 +207,12 @@ func proccessNbaOdds() {
 
 func main() {
 
-	// Define a new integer flag named 'poll' with default value of 0
+	// Define a new integer flag named 'poll' with default value of 2 hours (120 min)
 	// The user can specify the polling interval with -poll=<minutes>
-	poll := flag.Int("poll", 0, "Polling interval in minutes")
+	poll := flag.Int("poll", 120, "Polling interval in minutes")
 
 	// Parse the flag
 	flag.Parse()
-
-    // Check if 'arg' is provided
-	if *poll == 0 {
-		fmt.Println("Error: The '-poll' flag is required.")
-		os.Exit(1) // Exit with a non-zero status code to indicate an error
-	}
 
 	for {
 		proccessNbaOdds()
