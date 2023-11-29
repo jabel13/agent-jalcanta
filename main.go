@@ -214,6 +214,12 @@ func main() {
 	// Parse the flag
 	flag.Parse()
 
+    // Check if poll is provided
+	if *poll == 0 {
+		fmt.Println("Error: The '-poll' flag is required.")
+		os.Exit(1) // Exit with a non-zero status code to indicate an error
+	}
+
 	for {
 		proccessNbaOdds()
 
