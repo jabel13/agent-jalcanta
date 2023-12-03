@@ -12,7 +12,7 @@ import (
 	"io/ioutil"
 	"time"
 	loggly "github.com/jamespearly/loggly"
-	"flag"
+    "strconv"
 	"os"
 )
 
@@ -173,7 +173,7 @@ func proccessNbaOdds() {
 	// Fetch the API key from environment variables
 	apiKey := os.Getenv("API_KEY")
 	if apiKey == "" {
-		fmt.Println("Error: API_KEY environment variable not set")
+		log.Fatalf("Error: API_KEY environment variable not set")
 		return
 	}
 	apiUrl := "https://api.the-odds-api.com/v4/sports/basketball_nba/odds/?apiKey=" + apiKey + "&regions=us" + "&markets=h2h" + "&oddsFormat=american"
@@ -207,24 +207,28 @@ func proccessNbaOdds() {
 
 func main() {
 
-	// Define a new integer flag named 'poll' with default value of 2 hours (120 min)
-	// The user can specify the polling interval with -poll=<minutes>
-	poll := flag.Int("poll", 120, "Polling interval in minutes")
+	// Retrieve the environment variable
+	pollStr := os.Getenv("POLL_INTERVAL")
 
-	// Parse the flag
-	flag.Parse()
-
-    // Check if poll is provided
-	if *poll == 0 {
-		fmt.Println("Error: The '-poll' flag is required.")
-		os.Exit(1) // Exit with a non-zero status code to indicate an error
+    // Convert the environment variable to an integer
+	poll, err := strconv.Atoi(pollStr)
+	if err != nil {
+		fmt.Println("Error: Invalid POLL_INTERVAL value. It should be an integer.")
+		os.Exit(1)
 	}
+
+	// Check if poll is provided and is a positive value
+	if poll <= 0 {
+		fmt.Println("Error: POLL_INTERVAL must be a positive integer.")
+		os.Exit(1)
+	}
+
 
 	for {
 		proccessNbaOdds()
 
 		// Sleep for the specified duration
-		time.Sleep(time.Duration(*poll) * time.Minute)
+		time.Sleep(time.Duration(poll) * time.Minute)
 	}
 
 }
