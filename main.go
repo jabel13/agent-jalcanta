@@ -184,15 +184,17 @@ func proccessNbaOdds() {
         fmt.Println("Error:", err)
         return
     }
-    defer response.Body.Close()
 
 
 	games, err := readAndParseResponse(response)
 
     if err != nil {
         fmt.Println("Error:", err)
+        response.Body.Close()
         return
     }
+
+    response.Body.Close()
 
 	printGameDetails(games)
 
